@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}JPG to PNG Converter{% endblock %}
+
+{% block script %}
+    <script>
+        let errorElement = document.getElementById('error-message');
+
+        async function convertToPNG() {
+            const fileInput = document.getElementById("file-input");
+            if (fileInput.files.length === 0) {
+                errorElement.innerHTML = "Please select an image.";
+                return;
+            }
+            const file = fileInput.files[0];
+            if (file.type !== "image/jpeg") {
+                errorElement.innerHTML = "Selected file is not in JPG format.";
+                return;
+            }
+            const fileSize = file.size / 1024 / 1024;
+            let fileType = file.type;
+            if (fileType === "image/jpeg" && fileSize < 10) {
+                const formData = new FormData();
+                formData.append("image", file);
+                try {
+                    const resp = await fetch("/api/jpgtopng", {
+                        method: "POST",
+                        body: formData
+                    })
+                    const data = await resp.blob();
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(data);
+                    link.download = "converted.png";
+                    link.click();
+                } catch (e) {
+                    console.log(e);
+                }
+            } else {
+                errorElement.innerHTML = "Selected file is not in JPG format or file size is greater than 10 MB.";
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block cover %}JPG to PNG Converter{% endblock %}
+
+{% block button %}
+    <button type="button" onclick="convertToPNG()">Convert to PNG</button>
+{% endblock %}
+
+

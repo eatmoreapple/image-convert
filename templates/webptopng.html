@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}WEBP to PNG Converter{% endblock %}
+
+{% block script %}
+    <script>
+        let errorElement = document.getElementById('error-message');
+
+        async function convertImage() {
+            const formData = new FormData();
+            const fileInput = document.getElementById("file-input");
+            if (fileInput.files.length === 0) {
+                errorElement.innerHTML = "Please select a file";
+                return;
+            }
+            const file = fileInput.files[0];
+            if (file.type !== "image/webp") {
+                errorElement.innerHTML = "Selected file is not in WEBP format.";
+                return;
+            }
+            if (file.size / 1024 / 1024 > 10) {
+                errorElement.innerHTML = "Selected image is larger than 10MB.";
+                return;
+            }
+            formData.append("image", file);
+            const resp = await fetch("/api/webptopng", {
+                method: "POST",
+                body: formData
+            })
+            const data = await resp.blob();
+            const url = URL.createObjectURL(data);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "converted.png";
+            a.click();
+        }
+    </script>
+{% endblock %}
+
+{% block cover %}WEBP to PNG Converter{% endblock %}
+
+{% block button %}
+    <button type="button" onclick="convertImage()">WEBP to PNG Converter</button>
+{% endblock %}
+
+
+

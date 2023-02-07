@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}PNG to JPG Converter{% endblock %}
+
+{% block script %}
+    <script>
+        let errorElement = document.getElementById('error-message');
+
+        async function convertToJPG() {
+            const fileInput = document.getElementById("file-input");
+            if (fileInput.length === 0) {
+                errorElement.innerHTML = "Please select a file";
+                return;
+            }
+            const formData = new FormData();
+            const file = fileInput.files[0];
+            const fileSize = file.size / 1024 / 1024;
+            const fileType = file.type;
+            if (!(fileType === "image/png" && fileSize < 10)) {
+                errorElement.innerHTML = "Please upload a PNG file less than 10MB";
+                return
+            }
+            formData.append("image", file);
+            const resp = await fetch('/api/pngtojpg', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await resp.blob();
+            const url = URL.createObjectURL(data);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'image.jpg';
+            link.click();
+        }
+    </script>
+{% endblock %}
+
+{% block cover %}PNG to JPG Converter{% endblock %}
+
+{% block button %}
+    <button type="button" onclick="convertToJPG()">Convert to JPG</button>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
